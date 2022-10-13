@@ -1,7 +1,6 @@
 const cors = require('cors')
 const express = require('express');
 const mongoose = require("mongoose")
-const path = require("path")
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const router = require('./routes');
 const serverApp = require('./routes/user');
