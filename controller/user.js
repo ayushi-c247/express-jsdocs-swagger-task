@@ -131,6 +131,7 @@ const {UserModel} = require("../model")
 const getAllUSer= async (req, res,next) => {
     try {
        /// console.log("xnjjjjjjjjjjjjjjjjjjjjjjjjjj",next);
+       console.log("999999999999999999999999999999999999999999999999999");
         const user = await UserModel.find();
         return res.status(200).json({ message: "Get All Users successfully", data: user });
     } catch (error) {

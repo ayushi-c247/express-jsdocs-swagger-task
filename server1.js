@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 const jwt = require('jsonwebtoken');
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const validator = require('./common/validator');
-const UserModel = require("./model/user")
+const UserModel = require("./model/user");
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -51,6 +51,8 @@ const options = {
 const instance = expressJSDocSwagger(app)(options);
 const serverApp = async () => {
     const { validateRequest, validateResponse } = await validator(instance);
+
+
     /**
  * A User
  * @typedef {object} User
@@ -85,8 +87,9 @@ const serverApp = async () => {
  * }
  */
 
-app.post("/api/v1/signup", async (req, res) => {
+ app.post("/api/v1/signup",validateRequest(), async (req, res) => {
     try {
+        validateResponse({}, req);
         const { email, firstName, lastName, password } = req.body
         const user = await UserModel.findOne({ email });
         if (user) {
@@ -135,7 +138,7 @@ app.post("/api/v1/signup", async (req, res) => {
 
 app.post("/api/v1/login", async (req, res) => {
     try {
-        console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+       validateResponse({}, req);
         const { email, password } = req.body;
         const user = await UserModel.findOne({
             email,
@@ -159,7 +162,7 @@ app.post("/api/v1/login", async (req, res) => {
         return res.status(200).json({ message: "login successfully!!", token: token });
 
     } catch (error) {
-        console.log("error---------------------",error);
+        console.log("error",error);
         return res.status(500).json({
             message: error.message,
         });
@@ -178,8 +181,9 @@ app.post("/api/v1/login", async (req, res) => {
  * }
  */
 
-app.get("/api/v1", async (req, res) => {
+app.get("/api/v1",validateRequest({ headers: false }), async (req, res) => {
     try {
+        validateResponse({}, req);
         const user = await UserModel.find();
         return res.status(200).json({ message: "Get All Users successfully", data: user });
     } catch (error) {
@@ -202,7 +206,7 @@ app.get("/api/v1", async (req, res) => {
  * }
  */
 
-app.get('/api/v1/:id', async (req, res) => {
+app.get('/api/v1/:id',validateRequest({ headers: false }), async (req, res) => {
     try {
         const { id } = req.params
         const user = await UserModel.findById({ _id: id });
@@ -243,13 +247,15 @@ app.get('/api/v1/:id', async (req, res) => {
  */
 
 
-app.put("/api/v1/:id", async (req, res) => {
+app.put("/api/v1/:id",validateRequest({ headers: false }), async (req, res) => {
     try {
+        validateResponse({}, req);
         const { id } = req.params
         const user = await UserModel.findById({ _id: id });
         if (user) {
+            let ss=[]
             await UserModel.updateOne({ _id: id }, { $set: req.body });
-            return res.status(200).json({ message: "User updated successfully!!" });
+            return res.status(200).json({ message: "User updated successfully!!",ss });
         }
         return res.status(400).json({ message: "User does not exist!!" });
     } catch (error) {
@@ -262,17 +268,10 @@ app.put("/api/v1/:id", async (req, res) => {
 
 return app;
 }
+
 const port = 3000;
-serverApp()
-  .then(app => 
-    app.listen(port, () =>
-      console.log(`Listening PORT: ${port}`)
-    ))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
 
+serverApp().then(app=>{
+    app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
+}) 
 
-
-// app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
